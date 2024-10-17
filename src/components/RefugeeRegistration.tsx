@@ -38,52 +38,14 @@ const RefugeeRegistration: React.FC = () => {
     return `${countryCode}-${year}-${month}-${sequenceNumber}`;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
       const contract = await getEthereumContract();
-      const generatedId = generateRefugeeId();
-      const dateOfBirth = new Date(refugeeData.dateOfBirth).getTime() / 1000; // Convert to Unix timestamp
-
-      console.log('Attempting to register refugee with data:', {
-        id: generatedId,
-        name: refugeeData.name,
-        countryOfOrigin: refugeeData.countryOfOrigin,
-        dateOfBirth: dateOfBirth
-      });
-
-      const tx = await contract.registerRefugee(
-        generatedId,
-        refugeeData.name,
-        refugeeData.countryOfOrigin,
-        dateOfBirth
-      );
-
-      console.log('Transaction sent:', tx.hash);
-
-      const receipt = await tx.wait();
-      console.log('Transaction confirmed:', receipt.transactionHash);
-
-      setRefugeeData((prevData) => ({
-        ...prevData,
-        id: generatedId,
-      }));
-
-      console.log('Refugee registered:', { ...refugeeData, id: generatedId });
-    } catch (err) {
-      console.error('Detailed error:', err);
-      if (err.code === 'ACTION_REJECTED') {
-        setError('Transaction was rejected by the user.');
-      } else if (err.code === 'INSUFFICIENT_FUNDS') {
-        setError('Insufficient funds to complete the transaction.');
-      } else {
-        setError(`Failed to register refugee: ${err.message}`);
-      }
-    } finally {
-      setIsLoading(false);
+      await contract.registerRefugee(refugeeData.id, refugeeData.name, refugeeData.countryOfOrigin, new Date(refugeeData.dateOfBirth).getTime() / 1000);
+      console.log("Refugee registered successfully");
+    } catch (error) {
+      console.error("Error registering refugee:", error);
     }
   };
 
