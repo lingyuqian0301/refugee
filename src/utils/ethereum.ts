@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import RefugeeIdentityABI from '../contracts/RefugeeIdentity.json';
 
 const contractAddress = "0x06e60C0620343873403544614052b21c82D8Ab28";
 
@@ -7,13 +8,6 @@ export const getEthereumContract = async () => {
     try {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const network = await provider.getNetwork();
-      
-      // Check if connected to Sepolia
-      if (network.chainId !== 11155111n) { // Sepolia chain ID
-        throw new Error("Please connect to the Sepolia network");
-      }
-      
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, RefugeeIdentityABI.abi, signer);
       return contract;
