@@ -105,10 +105,6 @@ const RefugeeRegistration: React.FC = () => {
         )}
       </Box>
       <FormControl>
-        <FormLabel>Refugee ID</FormLabel>
-        <Input name="id" value={refugeeData.id} onChange={handleInputChange} />
-      </FormControl>
-      <FormControl>
         <FormLabel>Name</FormLabel>
         <Input name="name" value={refugeeData.name} onChange={handleInputChange} />
       </FormControl>

@@ -205,7 +205,7 @@ const SkillVerification: React.FC = () => {
         </Box>
       )}
       
-      {connectedAddress && (
+      {/* {connectedAddress && (
         <Box>
           <Heading size="md">Skills I've Verified</Heading>
           {verifiedByMeSkills.length === 0 ? (
@@ -220,7 +220,7 @@ const SkillVerification: React.FC = () => {
             ))
           )}
         </Box>
-      )}
+      )} */}
       
       {targetAddress && (
         <Box>
