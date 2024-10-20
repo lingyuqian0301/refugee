@@ -1,5 +1,5 @@
-import "@nomicfoundation/hardhat-toolbox";
-import "dotenv/config";
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
 const config = {
   solidity: {
@@ -14,12 +14,12 @@ const config = {
   },
   networks: {
     sepolia: {
-        url: "https://eth-sepolia.g.alchemy.com/v2/XedNFVIHuMt04sNpalK0YrNpPsfwgzPy",
-        accounts: ["7fc9e86628c8a31dfb48ebe49ba51ae60ce672e943af7b026eb5f3cddc96e8b3"]
-      gasPrice: 20000000000,  // 20 gwei
-      gas: 6000000,           // Gas limit
+      url: "https://eth-sepolia.g.alchemy.com/v2/XedNFVIHuMt04sNpalK0YrNpPsfwgzPy",
+      accounts: ["7fc9e86628c8a31dfb48ebe49ba51ae60ce672e943af7b026eb5f3cddc96e8b3"],
+      gasPrice: 1000000000,  // 1 gwei
+      gas: 2100000,           // Gas limit
     },
   },
 };
 
-export default config;
+module.exports = config;

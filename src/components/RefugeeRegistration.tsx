@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast } from "@chakra-ui/react";
+import { ethers } from 'ethers';
 import { getEthereumContract } from '../utils/ethereum';
 
 interface RefugeeData {
@@ -18,118 +19,109 @@ const RefugeeRegistration: React.FC = () => {
     countryOfOrigin: '',
     dateOfBirth: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [connectedAddress, setConnectedAddress] = useState('');
   const toast = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setRefugeeData((prevData) => ({
+    setRefugeeData(prevData => ({
       ...prevData,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  const generateRefugeeId = () => {
-    const countryCode = refugeeData.countryOfOrigin.slice(0, 2).toUpperCase();
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const sequenceNumber = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
-    
-    return `${countryCode}-${year}-${month}-${sequenceNumber}`;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
+  const connectWallet = async () => {
     try {
-      const contract = await getEthereumContract();
-      const generatedId = generateRefugeeId();
-      const dateOfBirth = new Date(refugeeData.dateOfBirth).getTime() / 1000;
-
-      const tx = await contract.registerRefugee(
-        generatedId,
-        refugeeData.name,
-        refugeeData.countryOfOrigin,
-        dateOfBirth
-      );
-
-      await tx.wait();
-
-      setRefugeeData((prevData) => ({
-        ...prevData,
-        id: generatedId,
-      }));
-
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      setConnectedAddress(address);
       toast({
-        title: "Refugee Registered",
-        description: `ID: ${generatedId}`,
+        title: "Wallet Connected",
+        description: `Connected with address: ${address}`,
         status: "success",
         duration: 5000,
         isClosable: true,
       });
-    } catch (err) {
-      console.error('Detailed error:', err);
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
       toast({
-        title: "Registration Failed",
-        description: err.message,
+        title: "Connection Failed",
+        description: "Failed to connect wallet",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  const handleRegistration = async () => {
+    if (!connectedAddress) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      const contract = await getEthereumContract('refugeeIdentity');
+      const tx = await contract.registerRefugee(
+        refugeeData.id,
+        refugeeData.name,
+        refugeeData.countryOfOrigin,
+        Math.floor(new Date(refugeeData.dateOfBirth).getTime() / 1000)
+      );
+      await tx.wait();
+      toast({
+        title: "Registration Successful",
+        description: `Refugee ${refugeeData.name} has been registered.`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast({
+        title: "Registration Failed",
+        description: error.message || "An error occurred during registration.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
   return (
-    <Box maxW="md" w="full" bg="white" p={6} borderRadius="lg" boxShadow="lg">
-      <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
-          <FormControl isRequired>
-            <FormLabel>Name</FormLabel>
-            <Input
-              name="name"
-              value={refugeeData.name}
-              onChange={handleInputChange}
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Country of Origin</FormLabel>
-            <Input
-              name="countryOfOrigin"
-              value={refugeeData.countryOfOrigin}
-              onChange={handleInputChange}
-            />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Date of Birth</FormLabel>
-            <Input
-              type="date"
-              name="dateOfBirth"
-              value={refugeeData.dateOfBirth}
-              onChange={handleInputChange}
-            />
-          </FormControl>
-          <Button
-            type="submit"
-            colorScheme="blue"
-            isLoading={isLoading}
-            loadingText="Registering"
-            width="full"
-          >
-            Register
-          </Button>
-        </VStack>
-      </form>
-      {refugeeData.id && (
-        <Box mt={4}>
-          <Text fontWeight="bold">Generated Refugee ID:</Text>
-          <Text>{refugeeData.id}</Text>
-        </Box>
-      )}
-    </Box>
+    <VStack spacing={4}>
+      <Box>
+        {!connectedAddress ? (
+          <Button onClick={connectWallet}>Connect Wallet</Button>
+        ) : (
+          <Text>Connected: {connectedAddress}</Text>
+        )}
+      </Box>
+      <FormControl>
+        <FormLabel>Refugee ID</FormLabel>
+        <Input name="id" value={refugeeData.id} onChange={handleInputChange} />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Name</FormLabel>
+        <Input name="name" value={refugeeData.name} onChange={handleInputChange} />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Country of Origin</FormLabel>
+        <Input name="countryOfOrigin" value={refugeeData.countryOfOrigin} onChange={handleInputChange} />
+      </FormControl>
+      <FormControl>
+        <FormLabel>Date of Birth</FormLabel>
+        <Input name="dateOfBirth" type="date" value={refugeeData.dateOfBirth} onChange={handleInputChange} />
+      </FormControl>
+      <Button onClick={handleRegistration} isDisabled={!connectedAddress}>Register Refugee</Button>
+    </VStack>
   );
 };
 

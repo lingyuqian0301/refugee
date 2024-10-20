@@ -1,15 +1,11 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
+module.exports = {
   webpack: (config, { isServer }) => {
     // Add a rule to handle Solidity files
     config.module.rules.push({
       test: /\.sol$/,
-      use: "ignore-loader",
+      use: 'raw-loader',
     });
 
     return config;
   },
 };
-
-export default nextConfig;

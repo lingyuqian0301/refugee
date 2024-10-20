@@ -1,7 +1,10 @@
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import "dotenv/config";
+import * as dotenv from "dotenv";
 
-const config = {
+dotenv.config();
+
+const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
@@ -14,12 +17,12 @@ const config = {
   },
   networks: {
     sepolia: {
-        url: "https://eth-sepolia.g.alchemy.com/v2/XedNFVIHuMt04sNpalK0YrNpPsfwgzPy",
-        accounts: ["7fc9e86628c8a31dfb48ebe49ba51ae60ce672e943af7b026eb5f3cddc96e8b3"],
-        gasPrice: 1000000000,  // 1 gwei
-        gas: 2100000,           // Gas limit
+      url: "https://eth-sepolia.g.alchemy.com/v2/XedNFVIHuMt04sNpalK0YrNpPsfwgzPy",
+      accounts: ["7fc9e86628c8a31dfb48ebe49ba51ae60ce672e943af7b026eb5f3cddc96e8b3"],
+      gasPrice: 1000000000,  // 1 gwei
+      gas: 2100000,           // Gas limit
     },
   },
-}; // Add this closing brace
+};
 
-export default config as import("hardhat/config").HardhatUserConfig;
+export default config;
