@@ -1,13 +1,20 @@
-import { Box, Flex, Heading} from "@chakra-ui/react";
-import RefugeeRegistration from "../components/RefugeeRegistration";
+import DefaultLayout from "../components/Layouts/DefaultLaout";
+import { Metadata } from "next";
+
+import React from "react";
+import ECommerce from "../components/Dashboard/E-commerce";
+export const metadata: Metadata = {
+  title:
+    "Next.js E-commerce Dashboard Page | NextAdmin - Next.js Dashboard Kit",
+  description: "This is Next.js Home page for NextAdmin Dashboard Kit",
+};
 
 export default function Home() {
   return (
-    <Box minH="100vh" bg="gray.100">
-      <Flex direction="column" align="center" justify="center" h="full" p={8}>
-        <Heading mb={6}>Refugee Registration System</Heading>
-        <RefugeeRegistration />
-      </Flex>
-    </Box>
+    <>
+      <DefaultLayout>
+        <ECommerce />
+      </DefaultLayout>
+    </>
   );
 }
