@@ -1,12 +1,13 @@
+import { Box, Flex, Heading} from "@chakra-ui/react";
 import RefugeeRegistration from "../components/RefugeeRegistration";
 
 export default function Home() {
   return (
-    <div className="min-h-screen p-8 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col items-center justify-center h-full">
+    <Box minH="100vh" bg="gray.100">
+      <Flex direction="column" align="center" justify="center" h="full" p={8}>
+        <Heading mb={6}>Refugee Registration System</Heading>
         <RefugeeRegistration />
-      </main>
-    </div>
+      </Flex>
+    </Box>
   );
 }
-

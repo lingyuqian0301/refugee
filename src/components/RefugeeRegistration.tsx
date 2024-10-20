@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, VStack, Text, useToast } from "@chakra-ui/react";
 import { getEthereumContract } from '../utils/ethereum';
 
 interface RefugeeData {
@@ -18,7 +19,7 @@ const RefugeeRegistration: React.FC = () => {
     dateOfBirth: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,19 +42,11 @@ const RefugeeRegistration: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
       const contract = await getEthereumContract();
       const generatedId = generateRefugeeId();
-      const dateOfBirth = new Date(refugeeData.dateOfBirth).getTime() / 1000; // Convert to Unix timestamp
-
-      console.log('Attempting to register refugee with data:', {
-        id: generatedId,
-        name: refugeeData.name,
-        countryOfOrigin: refugeeData.countryOfOrigin,
-        dateOfBirth: dateOfBirth
-      });
+      const dateOfBirth = new Date(refugeeData.dateOfBirth).getTime() / 1000;
 
       const tx = await contract.registerRefugee(
         generatedId,
@@ -62,87 +55,81 @@ const RefugeeRegistration: React.FC = () => {
         dateOfBirth
       );
 
-      console.log('Transaction sent:', tx.hash);
-
-      const receipt = await tx.wait();
-      console.log('Transaction confirmed:', receipt.transactionHash);
+      await tx.wait();
 
       setRefugeeData((prevData) => ({
         ...prevData,
         id: generatedId,
       }));
 
-      console.log('Refugee registered:', { ...refugeeData, id: generatedId });
+      toast({
+        title: "Refugee Registered",
+        description: `ID: ${generatedId}`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (err) {
       console.error('Detailed error:', err);
-      if (err.code === 'ACTION_REJECTED') {
-        setError('Transaction was rejected by the user.');
-      } else if (err.code === 'INSUFFICIENT_FUNDS') {
-        setError('Insufficient funds to complete the transaction.');
-      } else {
-        setError(`Failed to register refugee: ${err.message}`);
-      }
+      toast({
+        title: "Registration Failed",
+        description: err.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-5">Refugee Registration</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block mb-1">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={refugeeData.name}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border rounded"
-          />
-        </div>
-        <div>
-          <label htmlFor="countryOfOrigin" className="block mb-1">Country of Origin</label>
-          <input
-            type="text"
-            id="countryOfOrigin"
-            name="countryOfOrigin"
-            value={refugeeData.countryOfOrigin}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border rounded"
-          />
-        </div>
-        <div>
-          <label htmlFor="dateOfBirth" className="block mb-1">Date of Birth</label>
-          <input
-            type="date"
-            id="dateOfBirth"
-            name="dateOfBirth"
-            value={refugeeData.dateOfBirth}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border rounded"
-          />
-        </div>
-        <button 
-          type="submit" 
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Registering...' : 'Register'}
-        </button>
+    <Box maxW="md" w="full" bg="white" p={6} borderRadius="lg" boxShadow="lg">
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={4}>
+          <FormControl isRequired>
+            <FormLabel>Name</FormLabel>
+            <Input
+              name="name"
+              value={refugeeData.name}
+              onChange={handleInputChange}
+            />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Country of Origin</FormLabel>
+            <Input
+              name="countryOfOrigin"
+              value={refugeeData.countryOfOrigin}
+              onChange={handleInputChange}
+            />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Date of Birth</FormLabel>
+            <Input
+              type="date"
+              name="dateOfBirth"
+              value={refugeeData.dateOfBirth}
+              onChange={handleInputChange}
+            />
+          </FormControl>
+          <Button
+            type="submit"
+            colorScheme="blue"
+            isLoading={isLoading}
+            loadingText="Registering"
+            width="full"
+          >
+            Register
+          </Button>
+        </VStack>
       </form>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
       {refugeeData.id && (
-        <div className="mt-5">
-          <h3 className="font-bold">Generated Refugee ID:</h3>
-          <p className="text-lg">{refugeeData.id}</p>
-        </div>
+        <Box mt={4}>
+          <Text fontWeight="bold">Generated Refugee ID:</Text>
+          <Text>{refugeeData.id}</Text>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
