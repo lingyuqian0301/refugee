@@ -1,7 +1,7 @@
 "use client";
 import localFont from "next/font/local";
 import "./globals.css";
-import dynamic from 'next/dynamic';
+import { ChakraProvider } from '@chakra-ui/react'
 import theme from "../theme";
 
 const geistSans = localFont({
@@ -14,11 +14,6 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-
-const ChakraProvider = dynamic(
-  () => import('@chakra-ui/react').then((mod) => mod.ChakraProvider),
-  { ssr: false }
-);
 
 // Metadata should be moved to a separate file for client components
 // For example, create a new file named 'metadata.ts' in the same directory
