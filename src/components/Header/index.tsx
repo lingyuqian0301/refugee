@@ -1,8 +1,8 @@
 import Link from "next/link";
-import DropdownNotification from "./DropdownNotification";
+// import DropdownNotification from "./DropdownNotification";
 import DropdownUser from "./DropdownUser";
 import Image from "next/image";
-import SearchForm from "../Header/SearchForm";
+// import SearchForm from "../Header/SearchForm";
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -72,18 +72,18 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
             <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
               Dashboard
             </h1>
-            <p className="font-medium">Refugee Platform </p>
+            <p className="font-medium">Hi, Khin </p>
           </div>
         </div>
 
         <div className="flex items-center justify-normal gap-2 2xsm:gap-4 lg:w-full lg:justify-between xl:w-auto xl:justify-normal">
           <ul className="flex items-center gap-2 2xsm:gap-4">
             {/* <!-- Search Form --> */}
-            <SearchForm />
+            {/* <SearchForm /> */}
             {/* <!-- Search Form --> */}
 
             {/* <!-- Notification Menu Area --> */}
-            <DropdownNotification />
+            {/* <DropdownNotification /> */}
             {/* <!-- Notification Menu Area --> */}
           </ul>
 

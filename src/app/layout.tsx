@@ -1,8 +1,10 @@
-"use client";
+"use client"; 
+
+import { ChakraProvider } from "@chakra-ui/react";
 import localFont from "next/font/local";
-import "./globals.css";
-import { ChakraProvider } from '@chakra-ui/react'
 import theme from "../theme";
+import "./globals.css";
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -13,30 +15,15 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-// Metadata should be moved to a separate file for client components
-// For example, create a new file named 'metadata.ts' in the same directory
-// and export the metadata from there.
-// Then import it in server components where needed.
-// Example of how to use metadata in a server component:
-// import { metadata } from './metadata';
-// export { metadata };
-
 
 export default function RootLayout({
   children,
-
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ChakraProvider theme={theme}>
-          {children}
-        </ChakraProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ChakraProvider theme={theme}>{children}</ChakraProvider>
       </body>
-
     </html>
-    );
-  
+  );
 }
