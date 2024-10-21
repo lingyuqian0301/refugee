@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import SidebarItem from "../Sidebar/SidebarItem";
 import ClickOutside from "../ClickOutside";
+import { FaBriefcase } from "react-icons/fa";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -86,6 +87,12 @@ const menuItems = [
     ),
     label: "Medical",
     route: "/profile",
+  },
+  {
+    // Replace the job icon with FaBriefcase (job icon)
+    icon: <FaBriefcase className="w-6 h-6" />,  // Using the imported FaBriefcase icon
+    label: "Job",
+    route: "/employment",
   },
   {
     icon: (

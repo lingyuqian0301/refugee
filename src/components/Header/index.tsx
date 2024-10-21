@@ -72,7 +72,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }: HeaderProps) => {
             <h1 className="mb-0.5 text-heading-5 font-bold text-dark dark:text-white">
               Dashboard
             </h1>
-            <p className="font-medium">Hi, Khin </p>
+            <p className="font-medium">A New Identity for a New Tomorrow </p>
           </div>
         </div>
 

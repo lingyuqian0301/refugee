@@ -6,7 +6,7 @@ import { FaWallet, FaBitcoin, FaExchangeAlt } from 'react-icons/fa';
 
 export default function DigitalWallet() {
   const walletData = {
-    balance: "0.25 ETH",
+    balance: "0.28 ETH",
     walletId: "0x1234...abcd",  // Example wallet ID for transfers
     recentTransactions: [
       { id: 1, description: 'Aid distribution received', amount: '0.05 ETH', date: '2024-10-20' },
