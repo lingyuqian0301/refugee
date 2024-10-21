@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VStack, Box, Heading, Text, Badge, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, HStack, Divider } from "@chakra-ui/react";
 
 const ApplicationManagement: React.FC = () => {
-  // Mock application data
-  const applications = [
-    { id: 1, jobTitle: "Software Developer", company: "Tech Co", status: "Pending", description: "Develop web applications using React and Node.js", appliedDate: "2023-05-15" },
-    { id: 2, jobTitle: "Data Analyst", company: "Data Corp", status: "Interview", description: "Analyze large datasets and create visualizations", appliedDate: "2023-05-10" },
-    // Add more mock applications as needed
-  ];
+  const [applications, setApplications] = useState([]);
+
+  useEffect(() => {
+    const storedApplications = JSON.parse(localStorage.getItem('applications') || '[]');
+    setApplications(storedApplications);
+  }, []);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedApp, setSelectedApp] = useState<any>(null);
@@ -27,6 +27,7 @@ const ApplicationManagement: React.FC = () => {
               <Heading size="md">{app.jobTitle}</Heading>
               <Text fontSize="lg" color="gray.600">{app.company}</Text>
               <Badge colorScheme={app.status === "Pending" ? "yellow" : "green"} fontSize="sm" px={2} py={1} borderRadius="full">{app.status}</Badge>
+              <Text fontSize="sm" color="gray.500">Applied on: {app.appliedDate}</Text>
             </VStack>
             <Button size="sm" colorScheme="blue" onClick={() => handleViewDetails(app)}>View Details</Button>
           </HStack>

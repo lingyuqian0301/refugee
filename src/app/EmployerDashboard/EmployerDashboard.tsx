@@ -1,15 +1,11 @@
-"use client";
-
-import React from 'react';
-import { Box, Flex, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, Text, useColorModeValue, Container } from "@chakra-ui/react";
-import { FaBriefcase, FaClipboardList, FaCertificate, FaRobot } from "react-icons/fa";
-import JobListings from './JobListings';
-import ApplicationManagement from './ApplicationManagement';
-import SkillVerification from './SkillVerification';
-import AIRecommendations from './AIRecommendations';
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
-import AutoJobMatch from './AutoJobMatch';
+import React, { useState, useEffect } from 'react';
+import {
+  Box, VStack, Heading, Text, Badge, Button, Table, Thead, Tbody, Tr, Th, Td,
+  Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
+  useColorModeValue, Flex
+} from "@chakra-ui/react";
+import EmployerHeader from '../../components/Header/EmployerHeader';
+import EmployerSidebar from '../../components/EmployerSidebar';
 
 export default function EmploymentPlatform() {
   const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -18,9 +14,9 @@ export default function EmploymentPlatform() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <EmployerSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className="relative flex flex-1 flex-col overflow-hidden">
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <EmployerHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <main className="flex-1 overflow-y-auto">
           <Box bg={bgColor}>
             <Box
