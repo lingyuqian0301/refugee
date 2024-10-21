@@ -18,9 +18,9 @@ export default function EmployerDashboard() {
 
   useEffect(() => {
     const mockApplications = [
-      { id: 1, name: "Khin", jobTitle: "Cooker", status: "Pending", appliedDate: "2024-10-21", skills: ["Cooking", "Patience", "Empathy"], skillMatch: 90, reputationScore: 85 },
-      { id: 2, name: "Jane Smith", jobTitle: "Cooker", status: "Pending", appliedDate: "2023-05-16", skills: ["Cooking", "Meal Planning", "Nutrition Knowledge"], skillMatch: 85, reputationScore: 78 },
-      { id: 3, name: "Bob Johnson", jobTitle: "Cooker", status: "Pending", appliedDate: "2023-05-17", skills: ["Cooking", "Teamwork", "Time Management"], skillMatch: 80, reputationScore: 72 },
+      { id: 1, name: "Khin", jobTitle: "Cooker", status: "Pending", appliedDate: "2024-10-23", skills: ["Cooking", "Patience", "Empathy"], skillMatch: 90, reputationScore: 85 },
+      { id: 2, name: "Jane Smith", jobTitle: "Cooker", status: "Pending", appliedDate: "2024-10-22", skills: ["Cooking", "Meal Planning", "Nutrition Knowledge"], skillMatch: 85, reputationScore: 78 },
+      { id: 3, name: "Bob Johnson", jobTitle: "Cooker", status: "Pending", appliedDate: "2024-10-21", skills: ["Cooking", "Teamwork", "Time Management"], skillMatch: 80, reputationScore: 20 },
     ];
     setApplications(mockApplications);
   }, []);
@@ -70,7 +70,10 @@ export default function EmployerDashboard() {
                     <Progress value={app.skillMatch} size="sm" colorScheme="blue" />
                     {app.skillMatch}%
                   </Td>
-                  <Td>{app.reputationScore}</Td>
+                  <Td>
+                    <Progress value={app.reputationScore} size="sm" colorScheme={app.reputationScore < 50 ? "red" : "blue"} />
+                    {app.reputationScore}
+                  </Td>
                   <Td>
                     <Button size="sm" colorScheme="blue" onClick={() => handleViewDetails(app)}>View Details</Button>
                   </Td>
@@ -115,7 +118,8 @@ export default function EmployerDashboard() {
                   </Box>
                   <Box>
                     <Text fontWeight="bold" mb={1}>Reputation Score</Text>
-                    <Text>{selectedApp?.reputationScore}</Text>
+                    <Progress value={selectedApp?.reputationScore} size="sm" colorScheme={selectedApp?.reputationScore < 50 ? "red" : "blue"} />
+                    <Text mt={1}>{selectedApp?.reputationScore}</Text>
                   </Box>
                 </VStack>
               </ModalBody>
