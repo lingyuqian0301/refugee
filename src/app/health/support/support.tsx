@@ -86,7 +86,7 @@ export default function AIChatbotPage() {
             <h1 style={{ textAlign: 'center' }} className="page-title">Emotional and Mental Health Support</h1>
             <p className="chat-description">Our AI chatbot is here to provide emotional support and coping strategies. Feel free to talk, and it will guide you based on mental health best practices.</p>
 
-            <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px', backgroundColor: '#fff', borderRadius: '10px' }} className="chat-container">
+            <div className="chat-container">
                 
                 <div className="chat-box">
                     <div className="chat-messages">
