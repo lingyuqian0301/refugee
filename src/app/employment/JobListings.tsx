@@ -16,7 +16,18 @@ const JobListings: React.FC = () => {
 
   // Updated mock job data with refugee-friendly options
   const jobs = [
-    { id: 1, title: "Kitchen Helper", company: "Local Diner", location: "Downtown", matchPercentage: 95, description: "Assist in food preparation and kitchen cleaning.", requirements: "No experience necessary, on-the-job training provided", salary: "$15 - $18 per hour", language: "Basic English" },
+    { 
+      id: 1, 
+      title: "Kitchen Helper", 
+      company: "Local Diner", 
+      location: "Downtown", 
+      matchPercentage: 95, 
+      description: "Assist in food preparation and kitchen cleaning.", 
+      requirements: "No experience necessary, on-the-job training provided", 
+      salary: "$15 - $18 per hour", 
+      language: "Basic English",
+      skills: ["Food Preparation", "Kitchen Sanitation", "Basic Cooking", "Teamwork"]
+    },
     { id: 2, title: "Housekeeping Staff", company: "City Hotel", location: "Central", matchPercentage: 90, description: "Clean and maintain hotel rooms and common areas.", requirements: "No prior experience needed, training available", salary: "$14 - $16 per hour", language: "Basic English" },
     { id: 3, title: "Factory Worker", company: "Manufacturing Inc.", location: "Industrial Zone", matchPercentage: 88, description: "Assist in assembly line production and packaging.", requirements: "No experience required, safety training provided", salary: "$16 - $20 per hour", language: "Basic English or Spanish" },
     { id: 4, title: "Grocery Store Clerk", company: "FreshMart", location: "Various Locations", matchPercentage: 92, description: "Stock shelves, assist customers, and operate cash register.", requirements: "No prior experience needed, customer service skills a plus", salary: "$13 - $15 per hour", language: "English proficiency preferred" },
@@ -43,10 +54,31 @@ const JobListings: React.FC = () => {
         description: "Prepare nutritious and delicious meals for our lovely seniors.",
         requirements: "Basic cooking skills, patience, and a warm heart",
         salary: "$16 - $20 per hour",
-        language: "Basic English"
+        language: "Basic English",
+        skills: ["Cooking", "Meal Planning", "Nutrition Knowledge", "Patience", "Empathy"],
+        matchedSkills: ["Cooking", "Patience", "Empathy"]
       });
       setIsMatching(false);
     }, 3000); // 3 seconds of "matching" animation
+  };
+
+  const handleApply = (job) => {
+    const newApplication = {
+      id: Date.now(), // Use timestamp as a simple unique id
+      jobTitle: job.title,
+      company: job.company,
+      status: "Pending",
+      description: job.description,
+      appliedDate: new Date().toISOString().split('T')[0] // Current date in YYYY-MM-DD format
+    };
+
+    // Here you would typically send this data to your backend
+    // For now, we'll just store it in localStorage
+    const existingApplications = JSON.parse(localStorage.getItem('applications') || '[]');
+    const updatedApplications = [...existingApplications, newApplication];
+    localStorage.setItem('applications', JSON.stringify(updatedApplications));
+
+    alert('Application submitted successfully!');
   };
 
   return (
@@ -72,12 +104,12 @@ const JobListings: React.FC = () => {
         animation={isMatching ? `${pulse} 0.5s infinite` : 'none'}
       >
         <Heading size="md" color="orange.700">
-          {isMatching ? "🍳 Cooking up a perfect match! 🍳" : "Ready to find your dream cooking job?"}
+          {isMatching ? "🔍 Finding your perfect match! 🔍" : "Ready to find your ideal job?"}
         </Heading>
         <Text mt={2}>
           {isMatching 
-            ? "Stirring the pot of opportunities..." 
-            : "Let's whip up a delicious career opportunity for you!"}
+            ? "Searching through opportunities..." 
+            : "Let our AI help you find the job that suits you"}
         </Text>
         {!isMatching && (
           <Button 
@@ -85,7 +117,7 @@ const JobListings: React.FC = () => {
             colorScheme="orange" 
             onClick={startAutoMatch}
           >
-            Find My Perfect Kitchen!
+            Start Auto Matching
           </Button>
         )}
       </Box>
@@ -99,7 +131,18 @@ const JobListings: React.FC = () => {
             <Badge colorScheme="green">Match: {matchedJob.matchPercentage}%</Badge>
             <Progress value={matchedJob.matchPercentage} size="sm" width="100px" colorScheme="green" />
           </HStack>
-          <Button mt={2} size="sm" colorScheme="green">Apply Now</Button>
+          <Text mt={2}><strong>Required Skills:</strong></Text>
+          <HStack mt={1} flexWrap="wrap">
+            {matchedJob.skills.map((skill, index) => (
+              <Badge key={index} colorScheme={matchedJob.matchedSkills.includes(skill) ? "green" : "gray"}>
+                {skill} {matchedJob.matchedSkills.includes(skill) && "✓"}
+              </Badge>
+            ))}
+          </HStack>
+          <Text mt={2} fontSize="sm" color="green.600">
+            You have {matchedJob.matchedSkills.length} out of {matchedJob.skills.length} required skills!
+          </Text>
+          <Button mt={2} size="sm" colorScheme="green" onClick={() => handleApply(matchedJob)}>Apply Now</Button>
         </Box>
       )}
 
@@ -141,3 +184,4 @@ const JobListings: React.FC = () => {
 };
 
 export default JobListings;
+
