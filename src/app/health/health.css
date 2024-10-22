@@ -12,12 +12,10 @@
 }
 
 .recommendation-container {
-    max-width: 800px;
-    margin: 20px auto 40px;
+    margin: 20px auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .recommendation-item {
@@ -116,22 +114,80 @@
     background-color: #cbe6ca;
 }
 
-.back-home-btn {
-    padding: 12px 25px;
-    background-color: #eaeaea;
+.health-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+}
+
+.health-content-left {
+    max-width: 800px;
+    width: 100%;
+}
+
+.health-view-div {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.appointments-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0 0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.appointments-table th, .appointments-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.appointments-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.appointments-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.appointments-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.chat-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-section .message-p {
+    font-size: 16px;
+    color: #555;
+}
+
+.chat-btn {
+    margin: 20px auto 0;
+    padding: 10px 25px;
+    background-color: #f0f0f0;
     color: #ababab;
     border: none;
     border-radius: 10px;
     font-weight: 600;
 }
 
-.back-home-btn:hover {
+.chat-btn:hover {
     background-color: #d7d7d7;
 }
 
 .div-box {
     padding: 10px;
-    border: 2px solid #eeeeee ;
+    border: 2px solid #eeeeee;
     border-radius: 8px;
 }
 
