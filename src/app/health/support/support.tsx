@@ -4,7 +4,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import '../health.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faRobot, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faRobot, faUser, faHospital, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 
 // Dummy dialog 1 (Stress)
 const dummyChat1 = [
@@ -42,6 +42,22 @@ const dummyChat2 = [
     { id: 15, sender: 'bot', text: 'You\'re welcome! It\'s fantastic that you\'re taking this step. Learning car repair can be incredibly rewarding. Remember, practice makes perfect, so don\'t hesitate to ask questions during the workshop. If you ever need more information or tips, feel free to reach out. Happy learning!' }
 ];
 
+// Updated dummy dialog 3 (Disease inquiry with Penang General Hospital)
+const dummyChat3 = [
+    { id: 1, sender: 'bot', text: 'Hello! I\'m here to help you with emotional and mental health support. How can I assist you today?' },
+    { id: 2, sender: 'user', text: 'I\'ve been experiencing severe headaches and dizziness lately. I\'m worried it might be something serious.' },
+    { id: 3, sender: 'bot', text: 'I\'m sorry to hear that you\'re experiencing these symptoms. It\'s important to take your health seriously. While I can\'t provide a medical diagnosis, I can suggest that you see a healthcare professional for a proper evaluation. Would you like me to help you find the nearest hospital in Penang?' },
+    { id: 4, sender: 'user', text: 'Yes, please. That would be helpful.' },
+    { id: 5, sender: 'bot', text: 'Certainly! I\'ve found a nearby hospital in Penang that you can visit for a check-up.', hospitalInfo: {
+        name: 'Penang General Hospital',
+        address: 'Jalan Residensi, 10990 George Town, Pulau Pinang, Malaysia',
+        phone: '+604-222 5333',
+        distance: '3.2 km'
+    }},
+    { id: 6, sender: 'user', text: 'Thank you for the information. I\'ll make sure to visit the hospital soon.' },
+    { id: 7, sender: 'bot', text: 'You\'re welcome. It\'s always better to be safe and get checked by a professional. Remember to bring any relevant medical history or current medications with you. Is there anything else you\'d like to know about preparing for your hospital visit in Penang?' }
+];
+
 export default function AIChatbotPage() {
     const [messages, setMessages] = useState([
         { id: 1, sender: 'bot', text: 'Hello! I\'m here to help you with emotional and mental health support. How can I assist you today?' }
@@ -52,16 +68,8 @@ export default function AIChatbotPage() {
     const [dummyChat, setDummyChat] = useState(1);
 
     useEffect(() => {
-        if (dummyChat === 1) {
-            setMessages([...dummyChat1]);
-        } else if (dummyChat === 2) {
-            setMessages([...dummyChat2]);
-        } else {
-            setMessages([
-                { id: 1, sender: 'bot', text: 'Hello! I\'m here to help you with emotional and mental health support. How can I assist you today?' }
-            ]);
-        }
-    }, [dummyChat]);
+        setMessages([...dummyChat3]);
+    }, []);
 
     const sendMessage = () => {
         if (inputMessage.trim() === '') return;
@@ -87,14 +95,29 @@ export default function AIChatbotPage() {
             <p className="chat-description">Our AI chatbot is here to provide emotional support and coping strategies. Feel free to talk, and it will guide you based on mental health best practices.</p>
 
             <div className="chat-container">
-                
                 <div className="chat-box">
                     <div className="chat-messages">
                         {messages.map((message) => (
-                            <div key={message.id} className={`chat-message ${message.sender}`}>
-                                {message.sender === 'bot' ? <FontAwesomeIcon icon={faRobot} className="chat-icon" /> : <FontAwesomeIcon icon={faUser} className="chat-icon user-icon" />}
-                                <p className="message-text">{message.text}</p>
-                            </div>
+                            <React.Fragment key={message.id}>
+                                <div className={`chat-message ${message.sender}`}>
+                                    {message.sender === 'bot' ? <FontAwesomeIcon icon={faRobot} className="chat-icon" /> : <FontAwesomeIcon icon={faUser} className="chat-icon user-icon" />}
+                                    <p className="message-text">{message.text}</p>
+                                </div>
+                                {message.hospitalInfo && (
+                                    <div className="hospital-card">
+                                        <div className="hospital-header">
+                                            <FontAwesomeIcon icon={faHospital} className="hospital-icon" />
+                                            <h3>{message.hospitalInfo.name}</h3>
+                                        </div>
+                                        <p>{message.hospitalInfo.address}</p>
+                                        <p>Phone: {message.hospitalInfo.phone}</p>
+                                        <p>Distance: {message.hospitalInfo.distance}</p>
+                                        <button className="map-button">
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} /> View on Map
+                                        </button>
+                                    </div>
+                                )}
+                            </React.Fragment>
                         ))}
                     </div>
                     <div className="chat-input-section">
