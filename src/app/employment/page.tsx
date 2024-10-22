@@ -44,7 +44,7 @@ export default function EmploymentPlatform() {
                 flexDirection="column"
                 color="white"
               >
-                <Heading size="2xl" mb={4}>Career Development Center</Heading>
+                <Heading size="2xl" mb={4}>Jobs Listing</Heading>
                 <Text fontSize="xl">Explore opportunities and manage your professional growth</Text>
               </Box>
             </Box>
