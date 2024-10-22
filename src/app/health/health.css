@@ -11,6 +11,20 @@
     font-weight: bold;
 }
 
+.section-bot-btn {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #F4F7FE;
+    color: #7F8BB0;
+    border: none;
+    border-radius: 10px;
+}
+
+.section-bot-btn:hover {
+    background-color: #e8ecf3;
+    color: #6b779b;
+}
+
 .recommendation-container {
     margin: 20px auto;
     padding: 20px;
@@ -137,7 +151,7 @@
 .appointments-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0 0;
+    margin: 20px 0 20px;
     border-radius: 10px;
     overflow: hidden;
 }
@@ -159,6 +173,53 @@
 
 .appointments-table tr:hover {
     background-color: #f1f1f1;
+}
+
+.dietary-item {
+    padding: 10px;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.dietary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+.news-section {
+    margin-top: 30px;
+}
+
+.news-item {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #d2d2d2;
+}
+
+.news-item h4 {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.news-item p {
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    color: #666;
+}
+
+.news-link-btn {
+    background-color: #a25fb0;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.news-link-btn:hover {
+    background-color: #8f439e;
 }
 
 .chat-section {

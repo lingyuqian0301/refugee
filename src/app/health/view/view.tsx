@@ -4,9 +4,14 @@
 import React from 'react';
 import { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBriefcaseMedical, faSyringe, faCalendarAlt, faRobot, faComments } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faBriefcaseMedical, faSyringe,faPlus, faCalendarAlt, faRobot, faComments, faNewspaper, faAppleAlt  } from '@fortawesome/free-solid-svg-icons';
 import '../health.css';
 import { ImmunizationRecord, MedicalHistoryRecord } from '../../health/health_interface';
+
+interface DietaryGuideline {
+    id: number;
+    advice: string;
+}
 
 export default function ViewHealthRecord() {
     const [healthRecord] = useState({
@@ -69,6 +74,26 @@ export default function ViewHealthRecord() {
             color: 'green',
             advice: "Ensure regular physiotherapy exercises to maintain mobility after your arm fracture surgery.",
         },
+    ]);
+
+    const [news] = useState([
+        {
+            id: 1,
+            title: "WHO Launches New Initiative for Refugee Health Services",
+            summary: "Aiming to improve access to critical health services for refugees worldwide, the WHO announced...",
+            link: "/news/WHO-refugee-health-initiative",
+        },
+        {
+            id: 2,
+            title: "Vaccination Campaign for Refugees Set to Start Next Month",
+            summary: "A global vaccination drive is being launched next month to protect refugee communities from various infectious diseases...",
+            link: "/news/vaccination-campaign",
+        },
+    ])
+
+    const [dietaryGuidelines, setDietaryGuidelines] = useState<DietaryGuideline[]>([
+        { id: 1, advice: "Eat a balanced diet with plenty of vegetables and fruits." },
+        { id: 2, advice: "Limit intake of sugary drinks and processed foods." },
     ]);
 
     return (
@@ -142,6 +167,9 @@ export default function ViewHealthRecord() {
                                 </div>
                             </div>
                         )))}
+                        <button className="section-bot-btn" onClick={() => window.open('/', '_blank')}>
+                        <FontAwesomeIcon icon={faPlus} /> Add Immunization Record
+                        </button>
                     </div>
                 </div>
 
@@ -155,24 +183,27 @@ export default function ViewHealthRecord() {
                             <p className="message-p">No upcoming appointments.</p>
                         ) : (
                             <table className="appointments-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Reason</th>
-                                    <th>Doctor</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {appointments.map((appointment) => (
-                                    <tr key={appointment.id}>
-                                        <td>{appointment.date}</td>
-                                        <td>{appointment.reason}</td>
-                                        <td>{appointment.doctor}</td>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Reason</th>
+                                        <th>Doctor</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {appointments.map((appointment) => (
+                                        <tr key={appointment.id}>
+                                            <td>{appointment.date}</td>
+                                            <td>{appointment.reason}</td>
+                                            <td>{appointment.doctor}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         )}
+                        <button className="section-bot-btn" onClick={() => window.open('/', '_blank')}>
+                        <FontAwesomeIcon icon={faPlus} /> Make an appointment
+                        </button>
                     </div>
 
                     {/* AI-Driven Healthcare Recommendations Section */}
@@ -186,6 +217,45 @@ export default function ViewHealthRecord() {
                             recommendations.map((recommendation) => (
                                 <div key={recommendation.id} className={"recommendation-item " + recommendation.color} >
                                     <p className="recommend-p">{recommendation.advice}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                     {/* Dietary Guidelines Section */}
+                     <div className="recommendation-container">
+                        <h2 className="section-title">
+                            <FontAwesomeIcon icon={faAppleAlt} /> Dietary Guidelines
+                        </h2>
+                        {dietaryGuidelines.length === 0 ? (
+                            <p className="message-p">No dietary guidelines available.</p>
+                        ) : (
+                            dietaryGuidelines.map((guideline) => (
+                                <div key={guideline.id} className="dietary-item">
+                                    <p><strong>Advice:</strong> {guideline.advice}</p>
+                                </div>
+                            ))
+                        )}
+                        <button className="section-bot-btn">
+                            <FontAwesomeIcon icon={faPlus} /> Add Dietary Plan
+                        </button>
+                    </div>
+
+                    {/* Latest Healthcare News for Refugees Section */}
+                    <div className="recommendation-container news-section">
+                        <h2 className="section-title">
+                            <FontAwesomeIcon icon={faNewspaper} /> Latest Healthcare News
+                        </h2>
+                        {news.length === 0 ? (
+                            <p className="message-p">No recent news available.</p>
+                        ) : (
+                            news.map((newsItem) => (
+                                <div key={newsItem.id} className="news-item">
+                                    <h4>{newsItem.title}</h4>
+                                    <p>{newsItem.summary}</p>
+                                    <button className="news-link-btn" onClick={() => window.open(newsItem.link, '_blank')}>
+                                        Read more
+                                    </button>
                                 </div>
                             ))
                         )}
