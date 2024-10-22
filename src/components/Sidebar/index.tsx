@@ -37,7 +37,7 @@ const menuItems = [
       </svg>
     ),
     label: "Home",
-    route: "#",
+    route: "/",
   },
   {
     icon: (
@@ -64,7 +64,7 @@ const menuItems = [
       </svg>
     ),
     label: "MyID",
-    route: "/calendar",
+    route: "/reputation",
   },
   {
     icon: (
@@ -86,7 +86,7 @@ const menuItems = [
       </svg>
     ),
     label: "Medical",
-    route: "/profile",
+    route: "/health/view",
   },
   {
     // Replace the job icon with FaBriefcase (job icon)
@@ -121,7 +121,7 @@ const menuItems = [
       </svg>
     ),
     label: "AI Chatbot",
-    route: "#",
+    route: "/health/support",
   }
 ];
 

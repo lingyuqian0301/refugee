@@ -10,7 +10,7 @@ import profile_pic_2 from '../reputation/profile_pic (2).png';
  
 export default function ReputationPage() {
     const [endorsements, setEndorsements] = useState([
-        { id: 1, name: 'Mr. Lim Kai Zhe', position: 'Owner of reataurant',organization: 'Heng Kopitiam', testimonial: 'Jason is a dedicated worker.', image:profile_pic_1 },
+        { id: 1, name: 'Mr. Lim Kai Zhe', position: 'Owner of reataurant',organization: 'Heng Kopitiam', testimonial: 'Khin is a dedicated worker.', image:profile_pic_1 },
         { id: 2, name: 'Mr. Azak Bin Aryan', position: 'Owner of restaurant',organization: 'Restoran Nasi Kandar Rafei Ali', testimonial: 'Highly trustworthy and reliable.', image: profile_pic_2 },
     ]);
 
@@ -71,7 +71,7 @@ export default function ReputationPage() {
                 <div className='containter-right'>
                     <div className="score-display">
                         <p className="score-text">Reputation Score</p>
-                        <p className="score">95%</p>
+                        <p className="score">85%</p>
                     </div>
 
                     <div className="score-display">
