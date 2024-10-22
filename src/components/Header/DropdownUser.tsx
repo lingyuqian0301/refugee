@@ -17,7 +17,7 @@ const DropdownUser = () => {
           <Image
             width={112}
             height={112}
-            src="/images/user/user-03.png"
+            src="/images/user/user-khin.jpg"
             style={{
               width: "auto",
               height: "auto",
@@ -58,7 +58,7 @@ const DropdownUser = () => {
               <Image
                 width={112}
                 height={112}
-                src="/images/user/user-03.png"
+                src="/images/user/user-khin.jpg"
                 style={{
                   width: "auto",
                   height: "auto",
@@ -75,7 +75,7 @@ const DropdownUser = () => {
               Khin
               </span>
               <span className="block font-medium text-dark-5 dark:text-dark-6">
-                jonson@nextadmin.com
+                KKL@hackquest.com
               </span>
             </span>
           </div>
