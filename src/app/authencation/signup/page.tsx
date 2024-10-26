@@ -12,34 +12,26 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SignupPage() {
+export default function LoginPage() {
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const cardBgColor = useColorModeValue("white", "gray.800");
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSignup = async () => {
+  const handleLogin = async () => {
     setError("");
     setLoading(true);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const result = await response.json();
@@ -47,7 +39,8 @@ export default function SignupPage() {
       if (!response.ok) {
         setError(result.error);
       } else {
-        router.push("/authencation/login"); // Redirect on success
+        // Redirect to dashboard or other authenticated page on success
+        router.push("/dashboard"); 
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -73,17 +66,9 @@ export default function SignupPage() {
         w="100%"
       >
         <Heading mb={6} textAlign="center">
-          Sign Up
+          Log In
         </Heading>
         <VStack spacing={4}>
-          <Input
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            variant="filled"
-            bg={useColorModeValue("gray.100", "gray.700")}
-            _focus={{ borderColor: "blue.500" }}
-          />
           <Input
             placeholder="Email"
             value={email}
@@ -101,33 +86,24 @@ export default function SignupPage() {
             bg={useColorModeValue("gray.100", "gray.700")}
             _focus={{ borderColor: "blue.500" }}
           />
-          <Input
-            placeholder="Confirm Password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            variant="filled"
-            bg={useColorModeValue("gray.100", "gray.700")}
-            _focus={{ borderColor: "blue.500" }}
-          />
           {error && <Text color="red.500">{error}</Text>}
           <Button
             colorScheme="blue"
             w="100%"
-            onClick={handleSignup}
+            onClick={handleLogin}
             isLoading={loading}
           >
-            Sign Up
+            Log In
           </Button>
         </VStack>
         <Text mt={4} textAlign="center">
-          Already have an account?{" "}
+          Don't have an account?{" "}
           <Button
             variant="link"
             colorScheme="blue"
-            onClick={() => router.push("/authencation/login")}
+            onClick={() => router.push("/authencation/signup")}
           >
-            Log In
+            Sign Up
           </Button>
         </Text>
       </Box>
