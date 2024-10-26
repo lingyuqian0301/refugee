@@ -10,7 +10,19 @@ interface RefugeeData {
   name: string;
   countryOfOrigin: string;
   dateOfBirth: string;
+  isVerified: boolean;
+  verifiedBy: string;
 }
+
+const generateUniqueId = (): string => {
+  const timestamp = Date.now();
+  const randomNum = Math.floor(Math.random() * 1000);
+  return `R-${timestamp}-${randomNum}`;
+};
+
+const getUniqueId = (refugeeData: Omit<RefugeeData, 'id' | 'isVerified' | 'verifiedBy'>): string => {
+  return generateUniqueId();
+};
 
 const RefugeeRegistration: React.FC = () => {
   const [refugeeData, setRefugeeData] = useState<RefugeeData>({
@@ -18,6 +30,8 @@ const RefugeeRegistration: React.FC = () => {
     name: '',
     countryOfOrigin: '',
     dateOfBirth: '',
+    isVerified: false,
+    verifiedBy: '',
   });
   const [connectedAddress, setConnectedAddress] = useState('');
   const toast = useToast();
@@ -68,20 +82,57 @@ const RefugeeRegistration: React.FC = () => {
     }
 
     try {
+      // Generate unique ID locally
+      const uniqueId = getUniqueId({
+        name: refugeeData.name,
+        countryOfOrigin: refugeeData.countryOfOrigin,
+        dateOfBirth: refugeeData.dateOfBirth,
+      });
+
+      // Update refugeeData with the new ID
+      setRefugeeData(prevData => ({ ...prevData, id: uniqueId }));
+
       const contract = await getEthereumContract('refugeeIdentity');
+      if (!contract) {
+        throw new Error("Failed to get Ethereum contract");
+      }
+      console.log("Contract instance:", contract);
+
+      if (!contract.registerRefugee) {
+        throw new Error("registerRefugee function not found on contract");
+      }
+      
       const tx = await contract.registerRefugee(
-        refugeeData.id,
+        uniqueId,
         refugeeData.name,
         refugeeData.countryOfOrigin,
         Math.floor(new Date(refugeeData.dateOfBirth).getTime() / 1000)
       );
+      console.log("Transaction:", tx);
+      
+      if (!tx || !tx.wait) {
+        throw new Error("Invalid transaction object");
+      }
+
       await tx.wait();
+      console.log("Transaction mined");
+
       toast({
-        title: "Registration Successful",
-        description: `Refugee ${refugeeData.name} has been registered.`,
+        title: "Registration Submitted",
+        description: `Refugee ${refugeeData.name} has been registered with ID: ${uniqueId}. Awaiting verification.`,
         status: "success",
         duration: 5000,
         isClosable: true,
+      });
+
+      // Clear the form after successful registration
+      setRefugeeData({
+        id: '',
+        name: '',
+        countryOfOrigin: '',
+        dateOfBirth: '',
+        isVerified: false,
+        verifiedBy: ''
       });
     } catch (error) {
       console.error("Registration error:", error);

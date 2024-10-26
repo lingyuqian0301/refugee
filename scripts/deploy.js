@@ -2,7 +2,8 @@ import { ethers } from "hardhat";
 
 async function main() {
   const RefugeeIdentity = await ethers.getContractFactory("RefugeeIdentity");
-  const refugeeIdentity = await RefugeeIdentity.deploy();
+  const [deployer] = await ethers.getSigners();
+  const refugeeIdentity = await RefugeeIdentity.deploy(deployer.address);
 
   await refugeeIdentity.waitForDeployment();
 

@@ -4,7 +4,7 @@ import { SkillVerificationABI } from '../contractABIs';
 
 
 // Define the contract addresses
-const REFUGEE_IDENTITY_ADDRESS = "0xC5a4896Da3088225E0933832b2687C3833ec20EE";
+const REFUGEE_IDENTITY_ADDRESS = "0xf89a921fA5d6F334E6Ee509C2d34eCB9DEe7d820";
 const SKILL_VERIFICATION_ADDRESS = "0x832A3F886366eFC0D432c8bC8d96de9815198ae7";
 
 export const getEthereumContract = async (contractType: 'refugeeIdentity' | 'skillVerification') => {
@@ -27,7 +27,11 @@ export const getEthereumContract = async (contractType: 'refugeeIdentity' | 'ski
         throw new Error("Invalid contract type");
       }
 
+      console.log("Contract Address:", contractAddress);
+      console.log("Contract ABI:", contractABI);
+
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      console.log("Created contract instance:", contract);
       return contract;
     } catch (error) {
       console.error("Error connecting to Ethereum:", error);
