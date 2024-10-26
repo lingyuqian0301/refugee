@@ -36,6 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Invalid email or password" });
   }
 
-  // Step 3: Return success response (or a token in production)
+  // Step 3: Return user role to the client
   return res.status(200).json({ message: "Login successful", user: { id: user.id, role: user.role } });
 }
