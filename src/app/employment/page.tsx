@@ -9,7 +9,7 @@ import SkillVerification from './SkillVerification';
 import AIRecommendations from './AIRecommendations';
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
-import AutoJobMatch from './AutoJobMatch';
+import AutoJobbMatch from './AutoJobMatch';
 
 export default function EmploymentPlatform() {
   const bgColor = useColorModeValue("gray.50", "gray.900");

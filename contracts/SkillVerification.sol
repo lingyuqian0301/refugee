@@ -12,7 +12,9 @@ contract SkillVerification is Ownable {
     }
 
     mapping(address => mapping(string => Skill)) public userSkills;
-    uint256 public verificationFee = 0.001 ether; // 0.001 Sepolia ETH
+    mapping(address => string[]) private userSkillsList;
+
+    uint256 public verificationFee = 0.001 ether;
 
     event SkillVerified(address indexed user, string skill, address verifier);
 
@@ -22,32 +24,30 @@ contract SkillVerification is Ownable {
         require(msg.value >= verificationFee, "Insufficient verification fee");
         require(user != msg.sender, "Cannot verify own skills");
         require(!userSkills[user][skillName].isVerified, "Skill already verified");
-        emit SkillVerified(user, skillName, msg.sender);
+
+        string[] storage skillsList = userSkillsList[user];
+        
+        bool skillExists = false;
+        for (uint i = 0; i < skillsList.length; i++) {
+            if (keccak256(bytes(skillsList[i])) == keccak256(bytes(skillName))) {
+                skillExists = true;
+                break;
+            }
+        }
+        if (!skillExists) {
+            userSkillsList[user].push(skillName);
+        }
+
         userSkills[user][skillName] = Skill(skillName, msg.sender, block.timestamp, true);
         emit SkillVerified(user, skillName, msg.sender);
     }
 
     function getVerifiedSkills(address user) public view returns (string[] memory) {
-        uint256 count = 0;
-        for (uint256 i = 0; i < 100; i++) { // Arbitrary limit to prevent gas issues
-            if (bytes(userSkills[user][string(abi.encodePacked(i))].name).length > 0) {
-                count++;
-            } else {
-                break;
-            }
-        }
+        return userSkillsList[user];
+    }
 
-        string[] memory skills = new string[](count);
-        uint256 index = 0;
-        for (uint256 i = 0; i < count; i++) {
-            string memory skillName = userSkills[user][string(abi.encodePacked(i))].name;
-            if (bytes(skillName).length > 0) {
-                skills[index] = skillName;
-                index++;
-            }
-        }
-
-        return skills;
+    function getUserSkillCount(address user) public view returns (uint256) {
+        return userSkillsList[user].length;
     }
 
     function setVerificationFee(uint256 newFee) public onlyOwner {

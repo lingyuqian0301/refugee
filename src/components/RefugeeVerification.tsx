@@ -31,13 +31,23 @@ interface RegisteredRefugee {
   registeredBy: string;
 }
 
+interface ExtendedRefugee extends Refugee {
+  id: string;
+  verificationInfo?: {
+    isVerified: boolean;
+    verifier: string;
+    name: string;
+  };
+}
+
 const RefugeeVerification: React.FC = () => {
   const [refugeeId, setRefugeeId] = useState('');
   const [connectedAddress, setConnectedAddress] = useState('');
   const [verifiedIds, setVerifiedIds] = useState<RefugeeEvent[]>([]);
   const [refugeeInfo, setRefugeeInfo] = useState<Refugee | null>(null);
   const [registeredRefugees, setRegisteredRefugees] = useState<RegisteredRefugee[]>([]);
-  const [allRefugees, setAllRefugees] = useState<(Refugee & { id: string })[]>([]);
+  const [allRefugees, setAllRefugees] = useState<ExtendedRefugee[]>([]);
+  const [isVerifier, setIsVerifier] = useState(false);
   const toast = useToast();
 
   const connectWallet = async () => {
@@ -69,31 +79,54 @@ const RefugeeVerification: React.FC = () => {
     }
   };
 
+  const checkVerifierStatus = async () => {
+    if (!connectedAddress) return;
+    try {
+      const verificationInfoContract = await getEthereumContract('refugeeVerificationInfo');
+      const verifierStatus = await verificationInfoContract.isVerifier(connectedAddress);
+      setIsVerifier(verifierStatus);
+    } catch (error) {
+      console.error("Error checking verifier status:", error);
+    }
+  };
+
   const fetchAllRefugees = async () => {
     try {
-      const contract = await getEthereumContract('refugeeIdentity');
-      const filter = contract.filters.RefugeeRegistered();
-      const events = await contract.queryFilter(filter);
+      const identityContract = await getEthereumContract('refugeeIdentity');
+      const verificationInfoContract = await getEthereumContract('refugeeVerificationInfo');
+      
+      const filter = identityContract.filters.RefugeeRegistered();
+      const events = await identityContract.queryFilter(filter);
+      
       const refugees = await Promise.all(events.map(async (event) => {
         const id = event.args?.id;
-        const info = await contract.getRefugee(id);
+        const identityInfo = await identityContract.getRefugee(id);
+        
+        // Get additional verification info
+        const verificationInfo = await verificationInfoContract.getRefugeeVerificationStatus(id);
+        
         return {
           id,
-          name: info.name,
-          countryOfOrigin: info.countryOfOrigin,
-          dateOfBirth: Number(info.dateOfBirth),
-          isVerified: info.isVerified,
-          registeredBy: info.registeredBy,
-          verifiedBy: info.verifiedBy
+          name: identityInfo.name,
+          countryOfOrigin: identityInfo.countryOfOrigin,
+          dateOfBirth: Number(identityInfo.dateOfBirth),
+          isVerified: identityInfo.isVerified,
+          registeredBy: identityInfo.registeredBy,
+          verifiedBy: identityInfo.verifiedBy,
+          verificationInfo: {
+            isVerified: verificationInfo.isVerified,
+            verifier: verificationInfo.verifier,
+            name: verificationInfo.name
+          }
         };
       }));
+      
       setAllRefugees(refugees);
-      console.log("Fetched all refugees:", refugees);
     } catch (error) {
-      console.error("Error fetching all refugees:", error);
+      console.error("Error fetching refugees:", error);
       toast({
         title: "Fetch Failed",
-        description: "Failed to fetch refugee information. Please try again later.",
+        description: "Failed to fetch refugee information",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -101,17 +134,11 @@ const RefugeeVerification: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (connectedAddress) {
-      fetchAllRefugees();
-    }
-  }, [connectedAddress]);
-
   const handleVerification = async (id: string) => {
-    if (!connectedAddress) {
+    if (!connectedAddress || !isVerifier) {
       toast({
-        title: "Wallet Not Connected",
-        description: "Please connect your wallet first",
+        title: "Verification Failed",
+        description: "You must be an authorized verifier",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -120,13 +147,19 @@ const RefugeeVerification: React.FC = () => {
     }
 
     try {
-      const contract = await getEthereumContract('refugeeIdentity');
-      const tx = await contract.verifyRefugee(id);
-      await tx.wait();
+      const identityContract = await getEthereumContract('refugeeIdentity');
+      const verificationInfoContract = await getEthereumContract('refugeeVerificationInfo');
+
+      // Verify on both contracts
+      const tx1 = await identityContract.verifyRefugee(id);
+      await tx1.wait();
+
+      const tx2 = await verificationInfoContract.verifyMultipleRefugees([id]);
+      await tx2.wait();
 
       toast({
         title: "Verification Successful",
-        description: `Refugee with ID ${id} has been verified.`,
+        description: `Refugee with ID ${id} has been verified`,
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -137,13 +170,20 @@ const RefugeeVerification: React.FC = () => {
       console.error("Verification error:", error);
       toast({
         title: "Verification Failed",
-        description: error instanceof Error ? error.message : "An error occurred during verification.",
+        description: error instanceof Error ? error.message : "An error occurred",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
     }
   };
+
+  useEffect(() => {
+    if (connectedAddress) {
+      checkVerifierStatus();
+      fetchAllRefugees();
+    }
+  }, [connectedAddress]);
 
   return (
     <VStack spacing={4}>
