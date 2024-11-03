@@ -15,7 +15,7 @@ export async function fetchAIRecommendations(userAddress: string, verifiedSkills
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userAddress, verifiedSkills }),
+    body: JSON.stringify({ userAddress, verifiedSkills: validDetailedSkills }),
   });
 
   if (!response.ok) {

@@ -93,6 +93,7 @@ const AIRecommendations: React.FC = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ userAddress, verifiedSkills: validDetailedSkills }),
+            cache: 'no-store'
           });
 
           console.log("Response status:", response.status);
