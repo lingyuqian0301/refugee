@@ -10,6 +10,11 @@ interface Message {
     sender: 'bot' | 'user';
     text: string;
     hospitalInfo?: HospitalInfo;
+    actions?: {
+        type: 'appointment';
+        hospital: string;
+        link: string;
+    }[];
 }
 
 interface HospitalInfo {
@@ -17,6 +22,7 @@ interface HospitalInfo {
     address: string;
     phone: string;
     distance: string;
+    appointmentLink?: string;
 }
 
 const AIChatbotPage: React.FC = () => {
@@ -73,7 +79,7 @@ const AIChatbotPage: React.FC = () => {
             const data = await res.json();
 
             if (res.ok) {
-                const botMessage: Message = { id: messages.length + 2, sender: 'bot', text: data.response };
+                const botMessage: Message = { id: messages.length + 2, sender: 'bot', text: data.text };
                 setMessages((prevMessages) => [...prevMessages, botMessage]);
             } else {
                 throw new Error(data.error);
@@ -89,6 +95,40 @@ const AIChatbotPage: React.FC = () => {
         }
     };
 
+    const handleAppointment = async (hospitalName: string, appointmentLink: string) => {
+        try {
+            // You can either navigate to an appointment page or open a modal
+            const appointment = {
+                hospital: hospitalName,
+                date: new Date().toISOString().split('T')[0], // Today's date as default
+                status: 'pending'
+            };
+
+            const response = await fetch('/api/appointments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(appointment),
+            });
+
+            if (response.ok) {
+                // Add success message to chat
+                const confirmMessage: Message = {
+                    id: messages.length + 1,
+                    sender: 'bot',
+                    text: `I've helped you schedule an appointment at ${hospitalName}. You can view and manage your appointment in the Health Records section.`
+                };
+                setMessages(prev => [...prev, confirmMessage]);
+                
+                // Optionally, you can redirect to the view page
+                window.open('/health/view', '_blank');
+            }
+        } catch (error) {
+            console.error('Error scheduling appointment:', error);
+        }
+    };
+
     return (
         <div style={{ minWidth: "100%", minHeight: '100vh', padding: '20px 0', backgroundColor: '#F4F7FE' }}>
             <h1 style={{ textAlign: 'center' }} className="page-title">Emotional and Mental Health Support</h1>
@@ -101,7 +141,22 @@ const AIChatbotPage: React.FC = () => {
                             <React.Fragment key={message.id}>
                                 <div className={`chat-message ${message.sender}`}>
                                     {message.sender === 'bot' ? <FontAwesomeIcon icon={faRobot} className="chat-icon" /> : <FontAwesomeIcon icon={faUser} className="chat-icon user-icon" />}
-                                    <p className="message-text">{message.text}</p>
+                                    <div className="message-content">
+                                        <p className="message-text">{message.text}</p>
+                                        {message.actions && (
+                                            <div className="message-actions">
+                                                {message.actions.map((action, index) => (
+                                                    <button
+                                                        key={index}
+                                                        className="action-button"
+                                                        onClick={() => handleAppointment(action.hospital, action.link)}
+                                                    >
+                                                        Make Appointment at {action.hospital}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 {message.hospitalInfo && (
                                     <div className="hospital-card">
@@ -112,6 +167,17 @@ const AIChatbotPage: React.FC = () => {
                                         <p>{message.hospitalInfo.address}</p>
                                         <p>Phone: {message.hospitalInfo.phone}</p>
                                         <p>Distance: {message.hospitalInfo.distance}</p>
+                                        {message.hospitalInfo.appointmentLink && (
+                                            <button 
+                                                className="hospital-appointment-btn"
+                                                onClick={() => handleAppointment(
+                                                    message.hospitalInfo!.name,
+                                                    message.hospitalInfo!.appointmentLink!
+                                                )}
+                                            >
+                                                Schedule Appointment
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </React.Fragment>

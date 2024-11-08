@@ -1,8 +1,7 @@
-
 "use client";
 
 import React from 'react';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBriefcaseMedical, faSyringe,faPlus, faCalendarAlt, faRobot, faComments, faNewspaper, faAppleAlt  } from '@fortawesome/free-solid-svg-icons';
 import '../health.css';
@@ -20,10 +19,7 @@ export default function ViewHealthRecord() {
         bloodType: "O+",
     });
 
-    const [immunizations] = useState<ImmunizationRecord[]>([
-        { id: "IR001", name: "Hepatitis B", date: "2021-05-10" },
-        { id: "IR002", name: "Tetanus", date: "2022-03-22" },
-    ]);
+    const [immunizations, setImmunizations] = useState<ImmunizationRecord[]>([]);
 
     const [medicalHistories] = useState<MedicalHistoryRecord[]>([
         {
@@ -42,20 +38,39 @@ export default function ViewHealthRecord() {
         },
     ]);
 
-    const [appointments] = useState([
-        {
-            id: 1,
-            date: "2024-11-15",
-            reason: "Hepatitis B Booster Vaccine",
-            doctor: "Dr. Smith",
-        },
-        {
-            id: 2,
-            date: "2024-12-05",
-            reason: "Asthma Follow-up",
-            doctor: "Dr. Johnson",
-        },
-    ]);
+    const [appointments, setAppointments] = useState([]);
+
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            try {
+                const response = await fetch('/api/appointments');
+                if (response.ok) {
+                    const data = await response.json();
+                    setAppointments(data);
+                }
+            } catch (error) {
+                console.error('Error fetching appointments:', error);
+            }
+        };
+
+        fetchAppointments();
+    }, []);
+
+    useEffect(() => {
+        const fetchImmunizations = async () => {
+            try {
+                const response = await fetch('/api/immunizations');
+                if (response.ok) {
+                    const data = await response.json();
+                    setImmunizations(data);
+                }
+            } catch (error) {
+                console.error('Error fetching immunizations:', error);
+            }
+        };
+
+        fetchImmunizations();
+    }, []);
 
     // Dummy AI-driven recommendations
     const [recommendations] = useState([
@@ -105,7 +120,7 @@ export default function ViewHealthRecord() {
                 <div className='health-content-left'>
                     <div className='health-view-div'>
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faUser} /> Personal Health Details
+                            <FontAwesomeIcon icon={faUser} size="lg" /> Personal Health Details
                         </h2>
                         <div className="form-input-div">
                             <label>Refugee ID: </label>
@@ -123,7 +138,7 @@ export default function ViewHealthRecord() {
 
                     <div className='health-view-div'>
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faBriefcaseMedical} /> Medical History {medicalHistories.length > 0 ? `(${medicalHistories.length})` : ""}
+                            <FontAwesomeIcon icon={faBriefcaseMedical} size="lg" /> Medical History {medicalHistories.length > 0 ? `(${medicalHistories.length})` : ""}
                         </h2>
                         {medicalHistories.length === 0 ? (
                             <p className="message-p">No medical history records available.</p>
@@ -151,7 +166,7 @@ export default function ViewHealthRecord() {
 
                     <div className='health-view-div'>
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faSyringe} /> Immunization Records {immunizations.length > 0 ? `(${immunizations.length})` : ""}
+                            <FontAwesomeIcon icon={faSyringe} size="lg" /> Immunization Records {immunizations.length > 0 ? `(${immunizations.length})` : ""}
                         </h2>
                         {immunizations.length === 0 ? (
                             <p className="message-p">No immunization records available.</p>
@@ -167,7 +182,7 @@ export default function ViewHealthRecord() {
                                 </div>
                             </div>
                         )))}
-                        <button className="section-bot-btn" onClick={() => window.open('/', '_blank')}>
+                        <button className="section-bot-btn" onClick={() => window.open('/immunization', '_blank')}>
                         <FontAwesomeIcon icon={faPlus} /> Add Immunization Record
                         </button>
                     </div>
@@ -177,7 +192,7 @@ export default function ViewHealthRecord() {
                     {/* Medical Appointments Section */}
                     <div className="recommendation-container">
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faCalendarAlt} /> Upcoming Medical Appointments
+                            <FontAwesomeIcon icon={faCalendarAlt} size="lg" /> Upcoming Medical Appointments
                         </h2>
                         {appointments.length === 0 ? (
                             <p className="message-p">No upcoming appointments.</p>
@@ -201,7 +216,7 @@ export default function ViewHealthRecord() {
                                 </tbody>
                             </table>
                         )}
-                        <button className="section-bot-btn" onClick={() => window.open('/', '_blank')}>
+                        <button className="section-bot-btn" onClick={() => window.open('/appointment', '_blank')}>
                         <FontAwesomeIcon icon={faPlus} /> Make an appointment
                         </button>
                     </div>
@@ -209,7 +224,7 @@ export default function ViewHealthRecord() {
                     {/* AI-Driven Healthcare Recommendations Section */}
                     <div className="recommendation-container">
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faRobot} /> AI-Driven Healthcare Recommendations
+                            <FontAwesomeIcon icon={faRobot} size="lg" /> AI-Driven Healthcare Recommendations
                         </h2>
                         {recommendations.length === 0 ? (
                             <p className="message-p recommend-p">No recommendations available at this time.</p>
@@ -225,7 +240,7 @@ export default function ViewHealthRecord() {
                      {/* Dietary Guidelines Section */}
                      <div className="recommendation-container">
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faAppleAlt} /> Dietary Guidelines
+                            <FontAwesomeIcon icon={faAppleAlt} size="lg" /> Dietary Guidelines
                         </h2>
                         {dietaryGuidelines.length === 0 ? (
                             <p className="message-p">No dietary guidelines available.</p>
@@ -244,7 +259,7 @@ export default function ViewHealthRecord() {
                     {/* Latest Healthcare News for Refugees Section */}
                     <div className="recommendation-container news-section">
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faNewspaper} /> Latest Healthcare News
+                            <FontAwesomeIcon icon={faNewspaper} size="lg" /> Latest Healthcare News
                         </h2>
                         {news.length === 0 ? (
                             <p className="message-p">No recent news available.</p>
@@ -264,7 +279,7 @@ export default function ViewHealthRecord() {
                     {/* Healthcare Chatbot Section */}
                     <div className="recommendation-container chat-section">
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faComments} /> Chat with Healthcare Chatbot
+                            <FontAwesomeIcon icon={faComments} size="lg" /> Chat with Healthcare Chatbot
                         </h2>
                         <p className="message-p">Need help or have questions about your health? Chat with our healthcare chatbot for advice and assistance.</p>
                         <button className="chat-btn" onClick={() => window.open('/health/support', '_blank')}>
