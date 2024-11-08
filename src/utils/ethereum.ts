@@ -5,7 +5,7 @@ import { SkillVerificationABI } from '../contractABIs';
 
 // Define the contract addresses
 const REFUGEE_IDENTITY_ADDRESS = "0xC5a4896Da3088225E0933832b2687C3833ec20EE";
-const SKILL_VERIFICATION_ADDRESS = "0x832A3F886366eFC0D432c8bC8d96de9815198ae7";
+const SKILL_VERIFICATION_ADDRESS = "0x93E1cA925742d6B548bDbfe2afbF384467F8c2de";
 
 export const getEthereumContract = async (contractType: 'refugeeIdentity' | 'skillVerification') => {
   if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {

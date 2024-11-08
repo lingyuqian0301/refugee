@@ -66,11 +66,96 @@ export default async function handler(req, res) {
 
     const skillNames = verifiedSkills.map(skill => skill.name);
 
-    const prompt = `Based on the following verified skills: ${skillNames.join(', ')}, 
-                    suggest job recommendations and training programs that best match these abilities.
-                    Format the response as JSON with two arrays: 'jobRecommendations' and 'trainingRecommendations'.
-                    Each job should have 'title' and 'description' fields.
-                    Each training program should have 'title' and 'provider' fields.`;
+    const prompt = `Given the following verified skills: ${skillNames.join(', ')}, provide job and training recommendations in strict JSON format only. 
+    Respond only with JSON, without any explanations or formatting code.
+    
+    Expected format:
+    {
+      "jobRecommendations": [
+        { "title": "Job Title", "description": "Job Description" }
+      ],
+      "trainingRecommendations": [
+        { "title": "Training Title", "provider": "Provider Name" }
+      ]
+    }`;
+    
+    const fetchRecommendations = async () => {
+      setIsLoading(true);
+      setError(null);
+    
+      try {
+        if (!window.ethereum) {
+          throw new Error("Ethereum provider not found. Please install MetaMask.");
+        }
+    
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const userAddress = await signer.getAddress();
+    
+        const contract = await getEthereumContract('skillVerification');
+        const skills = await contract.getVerifiedSkills(userAddress);
+    
+        if (skills.length === 0) {
+          setVerifiedSkills([]);
+          setJobRecommendations([]);
+          setTrainingRecommendations([]);
+          return;
+        }
+    
+        const detailedSkills = await Promise.all(skills.map(async (skillName) => {
+          const skillDetails = await contract.userSkills(userAddress, skillName);
+          return {
+            name: skillName,
+            verifier: skillDetails.verifier,
+            timestamp: Number(skillDetails.timestamp),
+            isVerified: skillDetails.isVerified
+          };
+        }));
+    
+        const validDetailedSkills = detailedSkills.filter(skill => skill !== null);
+        setVerifiedSkills(validDetailedSkills);
+    
+        if (validDetailedSkills.length > 0) {
+          const response = await fetch('/api/ai-recommendations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userAddress, verifiedSkills: validDetailedSkills }),
+          });
+    
+          const responseText = await response.text();
+    
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}, message: ${responseText}`);
+          }
+    
+          try {
+            const data = JSON.parse(responseText);
+            setJobRecommendations(data.jobRecommendations || []);
+            setTrainingRecommendations(data.trainingRecommendations || []);
+          } catch (parseError) {
+            throw new Error(`Failed to parse JSON: ${responseText}`);
+          }
+        } else {
+          setJobRecommendations([]);
+          setTrainingRecommendations([]);
+        }
+      } catch (error) {
+        setError(error.message || 'An unknown error occurred');
+        toast({
+          title: "Error",
+          description: `Failed to fetch recommendations: ${error.message}`,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    
 
     console.log('Sending prompt to OpenAI:', prompt);
     const completion = await openai.chat.completions.create({
