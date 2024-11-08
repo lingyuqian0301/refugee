@@ -40,7 +40,7 @@ export default function AppointmentBooking() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api/appointments', {
+            const response = await fetch('/api/health/appointment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -48,17 +48,23 @@ export default function AppointmentBooking() {
                 body: JSON.stringify({
                     ...formData,
                     id: Date.now(),
-                    status: 'pending'
+                    status: 'pending',
+                    createdat: new Date().toISOString()
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
                 setSubmitSuccess(true);
                 setTimeout(() => {
                     window.location.href = '/health/view';
                 }, 2000);
             } else {
-                throw new Error('Failed to schedule appointment');
+                throw new Error(data.error || 'Failed to schedule appointment');
             }
         } catch (error) {
             console.error('Error scheduling appointment:', error);

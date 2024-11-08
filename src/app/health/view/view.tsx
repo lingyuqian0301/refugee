@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBriefcaseMedical, faSyringe,faPlus, faCalendarAlt, faRobot, faComments, faNewspaper, faAppleAlt  } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faBriefcaseMedical, faSyringe, faPlus, faCalendarAlt, faRobot, faComments, faNewspaper, faAppleAlt } from '@fortawesome/free-solid-svg-icons';
 import '../health.css';
 import { ImmunizationRecord, MedicalHistoryRecord } from '../../health/health_interface';
+import { createClient } from '../../../utils/supabase/client';
 
 interface DietaryGuideline {
     id: number;
@@ -20,7 +20,6 @@ export default function ViewHealthRecord() {
     });
 
     const [immunizations, setImmunizations] = useState<ImmunizationRecord[]>([]);
-
     const [medicalHistories] = useState<MedicalHistoryRecord[]>([
         {
             recordID: "MH0001",
@@ -39,38 +38,55 @@ export default function ViewHealthRecord() {
     ]);
 
     const [appointments, setAppointments] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
+    // Supabase client initialization
+    const supabaseClient = createClient();
+
+    // Fetch appointments from Supabase
     useEffect(() => {
         const fetchAppointments = async () => {
+            setIsLoading(true);
             try {
-                const response = await fetch('/api/appointments');
-                if (response.ok) {
-                    const data = await response.json();
-                    setAppointments(data);
-                }
-            } catch (error) {
-                console.error('Error fetching appointments:', error);
+                const { data, error } = await supabaseClient
+                    .from('appointments')
+                    .select('*')
+                    .order('date', { ascending: true }); // Sort by date if needed
+                
+                if (error) throw new Error(error.message);
+
+                setAppointments(data || []);
+                setError(null);
+            } catch (error: any) {
+                console.error('Error fetching appointments from Supabase:', error);
+                setError(error.message);
+                setAppointments([]);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchAppointments();
-    }, []);
+    }, [supabaseClient]);
 
-    useEffect(() => {
-        const fetchImmunizations = async () => {
-            try {
-                const response = await fetch('/api/immunizations');
-                if (response.ok) {
-                    const data = await response.json();
-                    setImmunizations(data);
-                }
-            } catch (error) {
-                console.error('Error fetching immunizations:', error);
-            }
-        };
+    // Fetch immunization records from Supabase
+    // useEffect(() => {
+    //     const fetchImmunizations = async () => {
+    //         try {
+    //             const { data, error } = await supabaseClient
+    //                 .from('immunizations') // Replace with your actual table name
+    //                 .select('*');
 
-        fetchImmunizations();
-    }, []);
+    //             if (error) throw new Error(error.message);
+    //             setImmunizations(data || []);
+    //         } catch (error) {
+    //             console.error('Error fetching immunizations from Supabase:', error);
+    //         }
+    //     };
+
+    //     fetchImmunizations();
+    // }, [supabaseClient]);
 
     // Dummy AI-driven recommendations
     const [recommendations] = useState([
@@ -104,9 +120,9 @@ export default function ViewHealthRecord() {
             summary: "A global vaccination drive is being launched next month to protect refugee communities from various infectious diseases...",
             link: "/news/vaccination-campaign",
         },
-    ])
+    ]);
 
-    const [dietaryGuidelines, setDietaryGuidelines] = useState<DietaryGuideline[]>([
+    const [dietaryGuidelines] = useState<DietaryGuideline[]>([
         { id: 1, advice: "Eat a balanced diet with plenty of vegetables and fruits." },
         { id: 2, advice: "Limit intake of sugary drinks and processed foods." },
     ]);
@@ -183,45 +199,57 @@ export default function ViewHealthRecord() {
                             </div>
                         )))}
                         <button className="section-bot-btn" onClick={() => window.open('/immunization', '_blank')}>
-                        <FontAwesomeIcon icon={faPlus} /> Add Immunization Record
+                            <FontAwesomeIcon icon={faPlus} /> Add Immunization Record
                         </button>
                     </div>
                 </div>
 
                 <div className='health-content-right'>
-                    {/* Medical Appointments Section */}
                     <div className="recommendation-container">
                         <h2 className="section-title">
                             <FontAwesomeIcon icon={faCalendarAlt} size="lg" /> Upcoming Medical Appointments
                         </h2>
-                        {appointments.length === 0 ? (
+                        {isLoading ? (
+                            <p>Loading appointments...</p>
+                        ) : error ? (
+                            <p>Error: {error}</p>
+                        ) : appointments.length === 0 ? (
                             <p className="message-p">No upcoming appointments.</p>
                         ) : (
                             <table className="appointments-table">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
-                                        <th>Reason</th>
+                                        <th>Time</th>
+                                        <th>Hospital</th>
                                         <th>Doctor</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {appointments.map((appointment) => (
                                         <tr key={appointment.id}>
-                                            <td>{appointment.date}</td>
-                                            <td>{appointment.reason}</td>
+                                            <td>{new Date(appointment.date).toLocaleDateString()}</td>
+                                            <td>{appointment.time}</td>
+                                            <td>{appointment.hospital}</td>
                                             <td>{appointment.doctor}</td>
+                                            <td>{appointment.reason}</td>
+                                            <td>
+                                                <span className={`status-${appointment.status.toLowerCase()}`}>
+                                                    {appointment.status}
+                                                </span>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         )}
-                        <button className="section-bot-btn" onClick={() => window.open('/appointment', '_blank')}>
-                        <FontAwesomeIcon icon={faPlus} /> Make an appointment
+                        <button className="section-bot-btn" onClick={() => window.open('/health/appointment', '_blank')}>
+                            <FontAwesomeIcon icon={faPlus} /> Make an appointment
                         </button>
                     </div>
 
-                    {/* AI-Driven Healthcare Recommendations Section */}
                     <div className="recommendation-container">
                         <h2 className="section-title">
                             <FontAwesomeIcon icon={faRobot} size="lg" /> AI-Driven Healthcare Recommendations
@@ -237,56 +265,18 @@ export default function ViewHealthRecord() {
                         )}
                     </div>
 
-                     {/* Dietary Guidelines Section */}
-                     <div className="recommendation-container">
+                    <div className="recommendation-container">
                         <h2 className="section-title">
-                            <FontAwesomeIcon icon={faAppleAlt} size="lg" /> Dietary Guidelines
+                            <FontAwesomeIcon icon={faNewspaper} size="lg" /> Healthcare News
                         </h2>
-                        {dietaryGuidelines.length === 0 ? (
-                            <p className="message-p">No dietary guidelines available.</p>
-                        ) : (
-                            dietaryGuidelines.map((guideline) => (
-                                <div key={guideline.id} className="dietary-item">
-                                    <p><strong>Advice:</strong> {guideline.advice}</p>
-                                </div>
-                            ))
-                        )}
-                        <button className="section-bot-btn">
-                            <FontAwesomeIcon icon={faPlus} /> Add Dietary Plan
-                        </button>
+                        {news.map((newsItem) => (
+                            <div key={newsItem.id} className="news-item">
+                                <h3 className="news-title">{newsItem.title}</h3>
+                                <p className="news-summary">{newsItem.summary}</p>
+                                <a href={newsItem.link} className="news-link">Read more</a>
+                            </div>
+                        ))}
                     </div>
-
-                    {/* Latest Healthcare News for Refugees Section */}
-                    <div className="recommendation-container news-section">
-                        <h2 className="section-title">
-                            <FontAwesomeIcon icon={faNewspaper} size="lg" /> Latest Healthcare News
-                        </h2>
-                        {news.length === 0 ? (
-                            <p className="message-p">No recent news available.</p>
-                        ) : (
-                            news.map((newsItem) => (
-                                <div key={newsItem.id} className="news-item">
-                                    <h4>{newsItem.title}</h4>
-                                    <p>{newsItem.summary}</p>
-                                    <button className="news-link-btn" onClick={() => window.open(newsItem.link, '_blank')}>
-                                        Read more
-                                    </button>
-                                </div>
-                            ))
-                        )}
-                    </div>
-
-                    {/* Healthcare Chatbot Section */}
-                    <div className="recommendation-container chat-section">
-                        <h2 className="section-title">
-                            <FontAwesomeIcon icon={faComments} size="lg" /> Chat with Healthcare Chatbot
-                        </h2>
-                        <p className="message-p">Need help or have questions about your health? Chat with our healthcare chatbot for advice and assistance.</p>
-                        <button className="chat-btn" onClick={() => window.open('/health/support', '_blank')}>
-                            Start Chat
-                        </button>
-                    </div>
-
                 </div>
             </div>
         </div>
