@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import '../health.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faRobot, faUser, faHospital, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faRobot, faUser, faHospital } from '@fortawesome/free-solid-svg-icons';
 
 interface Message {
     id: number;
@@ -15,6 +16,10 @@ interface Message {
         hospital: string;
         link: string;
     }[];
+    appointmentButton?: {
+        text: string;
+        link: string;
+    };
 }
 
 interface HospitalInfo {
@@ -34,7 +39,6 @@ const AIChatbotPage: React.FC = () => {
     const [threadId, setThreadId] = useState<string | null>(null);
 
     useEffect(() => {
-        // Initialize the thread when the component mounts
         const initializeThread = async () => {
             try {
                 const res = await fetch('/api/openai', {
@@ -62,7 +66,6 @@ const AIChatbotPage: React.FC = () => {
     const sendMessage = async () => {
         if (inputMessage.trim() === '') return;
 
-        // Add the user message to the chat
         const userMessage: Message = { id: messages.length + 1, sender: 'user', text: inputMessage };
         setMessages([...messages, userMessage]);
         setInputMessage('');
@@ -79,7 +82,21 @@ const AIChatbotPage: React.FC = () => {
             const data = await res.json();
 
             if (res.ok) {
-                const botMessage: Message = { id: messages.length + 2, sender: 'bot', text: data.text };
+                const linkRegex = /<a href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>/;
+                const match = data.text.match(linkRegex);
+                const textContent = data.text.replace(linkRegex, '').trim();
+
+                const botMessage: Message = {
+                    id: messages.length + 2,
+                    sender: 'bot',
+                    text: textContent,
+                    appointmentButton: match
+                        ? {
+                              text: match[2].trim(),
+                              link: match[1],
+                          }
+                        : undefined,
+                };
                 setMessages((prevMessages) => [...prevMessages, botMessage]);
             } else {
                 throw new Error(data.error);
@@ -95,12 +112,11 @@ const AIChatbotPage: React.FC = () => {
         }
     };
 
-    const handleAppointment = async (hospitalName: string, appointmentLink: string) => {
+    const handleAppointment = async (hospitalName: string) => {
         try {
-            // You can either navigate to an appointment page or open a modal
             const appointment = {
                 hospital: hospitalName,
-                date: new Date().toISOString().split('T')[0], // Today's date as default
+                date: new Date().toISOString().split('T')[0],
                 status: 'pending'
             };
 
@@ -113,20 +129,21 @@ const AIChatbotPage: React.FC = () => {
             });
 
             if (response.ok) {
-                // Add success message to chat
                 const confirmMessage: Message = {
                     id: messages.length + 1,
                     sender: 'bot',
                     text: `I've helped you schedule an appointment at ${hospitalName}. You can view and manage your appointment in the Health Records section.`
                 };
                 setMessages(prev => [...prev, confirmMessage]);
-                
-                // Optionally, you can redirect to the view page
                 window.open('/health/view', '_blank');
             }
         } catch (error) {
             console.error('Error scheduling appointment:', error);
         }
+    };
+
+    const parseMessageText = (text: string) => {
+        return <ReactMarkdown>{text}</ReactMarkdown>;
     };
 
     return (
@@ -142,14 +159,25 @@ const AIChatbotPage: React.FC = () => {
                                 <div className={`chat-message ${message.sender}`}>
                                     {message.sender === 'bot' ? <FontAwesomeIcon icon={faRobot} className="chat-icon" /> : <FontAwesomeIcon icon={faUser} className="chat-icon user-icon" />}
                                     <div className="message-content">
-                                        <p className="message-text">{message.text}</p>
+                                        <div className="message-text">
+                                            {parseMessageText(message.text)}
+                                        </div>
+                                        {message.appointmentButton && (
+                                            <button
+                                                className="action-button hover:opacity-80"
+                                                onClick={() => window.open(message.appointmentButton!.link, '_blank')}
+                                                style={{ textDecoration: 'underline' }}
+                                            >
+                                                {message.appointmentButton.text}
+                                            </button>
+                                        )}
                                         {message.actions && (
                                             <div className="message-actions">
                                                 {message.actions.map((action, index) => (
                                                     <button
                                                         key={index}
                                                         className="action-button"
-                                                        onClick={() => handleAppointment(action.hospital, action.link)}
+                                                        onClick={() => handleAppointment(action.hospital)}
                                                     >
                                                         Make Appointment at {action.hospital}
                                                     </button>
@@ -170,10 +198,7 @@ const AIChatbotPage: React.FC = () => {
                                         {message.hospitalInfo.appointmentLink && (
                                             <button 
                                                 className="hospital-appointment-btn"
-                                                onClick={() => handleAppointment(
-                                                    message.hospitalInfo!.name,
-                                                    message.hospitalInfo!.appointmentLink!
-                                                )}
+                                                onClick={() => handleAppointment(message.hospitalInfo!.name)}
                                             >
                                                 Schedule Appointment
                                             </button>
