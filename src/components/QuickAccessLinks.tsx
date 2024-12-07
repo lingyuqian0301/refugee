@@ -4,7 +4,7 @@ import { Box, Text, Grid, GridItem, Button } from '@chakra-ui/react';
 const quickLinks = [
   { title: 'Profile', info: 'View and update your profile', path: '/profile' },
   { title: 'Employment', info: 'Browse job opportunities', path: '/employment' },
-  { title: 'Healthcare', info: 'Manage healthcare options', path: '/healthcare' },
+  { title: 'Healthcare', info: 'Manage healthcare options', path: '/health/view' },
   { title: 'Aid', info: 'Track your aid applications', path: '/aid' },
   { title: 'Support', info: 'Get assistance and support', path: '/support' },
 ];
